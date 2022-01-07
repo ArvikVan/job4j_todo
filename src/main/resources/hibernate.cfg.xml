@@ -18,7 +18,6 @@
         <property name="format_sql">true</property>
         <property name="use_sql_comments">true</property>
 
-       <!-- <mapping class="ru.job4j.tracker.Item" />
-        <mapping class="ru.job4j.car.Car" />-->
+       <mapping class="models.Item" />
     </session-factory>
 </hibernate-configuration>
