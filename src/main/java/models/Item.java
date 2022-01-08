@@ -9,6 +9,8 @@ import java.util.Objects;
  * @author ArvikV
  * @version 1.0
  * @since 07.01.2022
+ * 1.1 private boolean done = false; убрать это избыточно
+ * 2. В equals и hashcode для модели используйте только id
  */
 @Entity
 @Table(name = "items")
@@ -18,27 +20,9 @@ public class Item {
     private int id;
     private String description;
     private Timestamp created = Timestamp.valueOf(LocalDateTime.now().withNano(0));
-    private boolean done = false;
+    private boolean done;
 
     public Item() {
-    }
-
-    public Item(int id, String description) {
-        this.id = id;
-        this.description = description;
-    }
-
-    public Item(int id, String description, Timestamp created) {
-        this.id = id;
-        this.description = description;
-        this.created = created;
-    }
-
-    public Item(int id, String description, Timestamp created, boolean done) {
-        this.id = id;
-        this.description = description;
-        this.created = created;
-        this.done = done;
     }
 
     public int getId() {
@@ -82,15 +66,12 @@ public class Item {
             return false;
         }
         Item item = (Item) o;
-        return id == item.id
-                && done == item.done
-                && Objects.equals(description, item.description)
-                && Objects.equals(created, item.created);
+        return id == item.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, description, created, done);
+        return Objects.hash(id);
     }
 
     @Override

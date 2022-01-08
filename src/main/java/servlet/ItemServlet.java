@@ -17,8 +17,10 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * @author ArvikV
- * @version 1.0
+ * @version 1.1
  * @since 07.01.2022
+ * 1.1 4. Сократите до одного обращения в БД
+ * В методе дупут удрал лишние переменные, поменял метод обновления бд
  */
 @WebServlet(urlPatterns = "/items")
 public class ItemServlet extends HttpServlet {
@@ -57,14 +59,8 @@ public class ItemServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         Item tempItem = GSON.fromJson(req.getReader(), Item.class);
-        int id = tempItem.getId();
-        boolean done = tempItem.isDone();
-        Item item = ItemStore.instOf().findById(id);
-        if (item != null) {
-            item.setDone(done);
-            ItemStore.instOf().updateItem(item);
-            writeJson(resp, item);
-        }
+        ItemStore.instOf().done(tempItem.getId());
+        writeJson(resp, tempItem);
     }
 
     private void writeJson(HttpServletResponse resp, Item item) throws IOException {

@@ -13,6 +13,7 @@ import java.util.List;
  * @author ArvikV
  * @version 1.0
  * @since 07.01.2022
+ * public void close() 3. Или реализуйте метод, или удалите
  */
 public class ItemStore implements Store, AutoCloseable {
     private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
@@ -33,7 +34,7 @@ public class ItemStore implements Store, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-
+        sf.close();
     }
 
     @Override
@@ -70,9 +71,10 @@ public class ItemStore implements Store, AutoCloseable {
     public void done(int id) {
         Session session = sf.openSession();
         session.beginTransaction();
-        List result = session.createQuery(
-                "update Item set done = true where id =: id"
-        ).list();
+        session.createQuery(
+                "update Item set done = true where id =: id")
+                .setParameter("id", id)
+                .executeUpdate();
         session.getTransaction().commit();
         session.close();
     }
