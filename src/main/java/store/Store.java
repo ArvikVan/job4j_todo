@@ -2,6 +2,7 @@ package store;
 
 import models.Item;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * @since 07.01.2022
  */
 public interface Store {
-    Item add(Item item);
+    Serializable add(Item item);
 
     List<Item> findAll();
 
