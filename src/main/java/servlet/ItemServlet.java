@@ -3,6 +3,7 @@ package servlet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import models.Item;
+import models.User;
 import store.ItemStore;
 
 import javax.servlet.RequestDispatcher;
@@ -50,8 +51,10 @@ public class ItemServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         Item item = GSON.fromJson(req.getReader(), Item.class);
-        ItemStore.instOf().add(item);
         resp.setContentType("application/json; charset=utf-8");
+        User user = (User) req.getSession().getAttribute("user");
+        item.setUser(user);
+        ItemStore.instOf().add(item);
         writeJson(resp, item);
     }
 

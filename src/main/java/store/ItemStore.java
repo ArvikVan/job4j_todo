@@ -1,23 +1,23 @@
 package store;
 
 import models.Item;
+import models.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
 
 /**
  * @author ArvikV
- * @version 1.2
+ * @version 1.0
  * @since 07.01.2022
  * public void close() 3. Или реализуйте метод, или удалите
- * 1.2 добавлены лямбды и реализован шаблон wrapper
  */
 public class ItemStore implements Store, AutoCloseable {
     private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
@@ -41,52 +41,6 @@ public class ItemStore implements Store, AutoCloseable {
         sf.close();
     }
 
-    @Override
-    public Serializable add(Item item) {
-        return this.tx(session -> session.save(item));
-    }
-
-    @Override
-    public List<Item> findAll() {
-        return this.tx(session -> session.createQuery("from Item").list());
-    }
-
-    @Override
-    public Item findById(int id) {
-        return this.tx(session -> session.get(Item.class, id));
-    }
-
-    @Override
-    public void done(int id) {
-        this.tx(
-                session -> session.createQuery(
-                                "update Item set done = true where id =: id")
-                        .setParameter("id", id)
-                        .executeUpdate()
-        );
-    }
-
-    @Override
-    public boolean update(int id, Item item) {
-        return this.tx(session -> {
-            item.setId(id);
-            session.update(item);
-            return true;
-        });
-    }
-
-    @Override
-    public boolean updateItem(Item item) {
-        return update(item.getId(), item);
-    }
-
-    @Override
-    public List<Item> findByDone() {
-        return this.tx(
-                session -> session.createQuery("from Item where done = false").list()
-        );
-    }
-
     /**
      * Применен шаблон wrapper и лямбды
      * @param command на входе функциональный интерфейс,
@@ -107,5 +61,95 @@ public class ItemStore implements Store, AutoCloseable {
         } finally {
             session.close();
         }
+    }
+
+    @Override
+    public Item add(Item item) {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        session.save(item);
+        session.getTransaction().commit();
+        session.close();
+        return item;
+    }
+
+    @Override
+    public User addUser(User user) {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        session.save(user);
+        session.getTransaction().commit();
+        session.close();
+        return user;
+    }
+
+    @Override
+    public List<Item> findAll() {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        List result = session.createQuery("from Item").list();
+        session.getTransaction().commit();
+        session.close();
+        return result;
+    }
+
+    @Override
+    public Item findById(int id) {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        Item result = session.get(Item.class, id);
+        session.getTransaction().commit();
+        session.close();
+        return result;
+    }
+
+    @Override
+    public void done(int id) {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        session.createQuery(
+                        "update Item set done = true where id =: id")
+                .setParameter("id", id)
+                .executeUpdate();
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    @Override
+    public boolean update(int id, Item item) {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        item.setId(id);
+        session.update(item);
+        session.getTransaction().commit();
+        session.close();
+        return true;
+    }
+
+    @Override
+    public boolean updateItem(Item item) {
+        return update(item.getId(), item);
+    }
+
+    @Override
+    public List<Item> findByDone() {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        List result = session.createQuery("from Item where done = false").list();
+        session.getTransaction().commit();
+        session.close();
+        return result;
+    }
+
+    @Override
+    public User findUserByName(String name) {
+        return this.tx(
+                session -> {
+                    Query query = session.createQuery("from User where name = :name");
+                    query.setParameter("name", name);
+                    User user = (User) query.uniqueResult();
+                    return user;
+                }
+        );
     }
 }

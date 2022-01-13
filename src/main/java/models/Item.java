@@ -20,9 +20,28 @@ public class Item {
     private int id;
     private String description;
     private Timestamp created = Timestamp.valueOf(LocalDateTime.now().withNano(0));
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     private boolean done;
 
     public Item() {
+    }
+
+    public Item(int id, String description, Timestamp created, boolean done, User user) {
+        this.id = id;
+        this.description = description;
+        this.created = created;
+        this.done = done;
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public int getId() {

@@ -1,8 +1,8 @@
 package store;
 
 import models.Item;
+import models.User;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ import java.util.List;
  * @since 07.01.2022
  */
 public interface Store {
-    Serializable add(Item item);
+    Item add(Item item);
 
     List<Item> findAll();
 
@@ -25,4 +25,7 @@ public interface Store {
 
     List<Item> findByDone();
 
+    User findUserByName(String name);
+
+    User addUser(User user);
 }
