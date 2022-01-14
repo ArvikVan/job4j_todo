@@ -10,6 +10,7 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -18,6 +19,7 @@ import java.util.function.Function;
  * @version 1.0
  * @since 07.01.2022
  * public void close() 3. Или реализуйте метод, или удалите
+ * шаблон wrapper применен ко всем методам
  */
 public class ItemStore implements Store, AutoCloseable {
     private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
@@ -64,66 +66,41 @@ public class ItemStore implements Store, AutoCloseable {
     }
 
     @Override
-    public Item add(Item item) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        session.save(item);
-        session.getTransaction().commit();
-        session.close();
-        return item;
+    public Serializable add(Item item) {
+        return this.tx(session -> session.save(item));
     }
 
     @Override
-    public User addUser(User user) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        session.save(user);
-        session.getTransaction().commit();
-        session.close();
-        return user;
+    public Serializable addUser(User user) {
+        return this.tx(session -> session.save(user));
     }
 
     @Override
     public List<Item> findAll() {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        List result = session.createQuery("from Item").list();
-        session.getTransaction().commit();
-        session.close();
-        return result;
+        return this.tx(session -> session.createQuery("from Item").list());
     }
 
     @Override
     public Item findById(int id) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        Item result = session.get(Item.class, id);
-        session.getTransaction().commit();
-        session.close();
-        return result;
+        return this.tx(session -> session.get(Item.class, id));
     }
 
     @Override
     public void done(int id) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        session.createQuery(
-                        "update Item set done = true where id =: id")
+        this.tx(session -> session.createQuery(
+                "update Item set done = true where id =: id")
                 .setParameter("id", id)
-                .executeUpdate();
-        session.getTransaction().commit();
-        session.close();
+                .executeUpdate()
+        );
     }
 
     @Override
     public boolean update(int id, Item item) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        item.setId(id);
-        session.update(item);
-        session.getTransaction().commit();
-        session.close();
-        return true;
+       return this.tx(session -> {
+           item.setId(id);
+           session.update(item);
+           return true;
+       });
     }
 
     @Override
@@ -133,12 +110,7 @@ public class ItemStore implements Store, AutoCloseable {
 
     @Override
     public List<Item> findByDone() {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        List result = session.createQuery("from Item where done = false").list();
-        session.getTransaction().commit();
-        session.close();
-        return result;
+        return this.tx(session -> session.createQuery("from Item where done = false").list());
     }
 
     @Override
