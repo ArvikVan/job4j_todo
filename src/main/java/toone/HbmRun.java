@@ -20,11 +20,20 @@ public class HbmRun {
             try {
                 SessionFactory sf = new MetadataSources(registry)
                         .buildMetadata().buildSessionFactory();
-                Role role = create(Role.of("ADMIN"), sf);
-                create(JUser.of("Petr Arsentev", role), sf);
-                for (JUser user : findAll(JUser.class, sf)) {
-                    System.out.println(user.getName() + " " + user.getRole().getName());
-                }
+                Session session = sf.openSession();
+                session.beginTransaction();
+
+                JUser one = JUser.of("Petr");
+                JUser two = JUser.of("Andrei");
+
+                Role admin = Role.of("ADMIN");
+                admin.getjUsers().add(one);
+                admin.getjUsers().add(two);
+
+                session.save(admin);
+
+                session.getTransaction().commit();
+                session.close();
             }  catch (Exception e) {
                 e.printStackTrace();
             } finally {

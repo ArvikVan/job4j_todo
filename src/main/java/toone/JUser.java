@@ -5,7 +5,7 @@ import java.util.Objects;
 
 /**
  * @author ArvikV
- * @version 1.0
+ * @version 1.1
  * @since 09.01.2022
  */
 @Entity
@@ -16,14 +16,9 @@ public class JUser {
     private int id;
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
-    public static JUser of(String name, Role role) {
+    public static JUser of(String name) {
         JUser user = new JUser();
         user.name = name;
-        user.role = role;
         return user;
     }
 
@@ -41,14 +36,6 @@ public class JUser {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
     @Override

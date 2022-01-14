@@ -1,11 +1,13 @@
 package toone;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author ArvikV
- * @version 1.0
+ * @version 1.1
  * @since 09.01.2022
  */
 @Entity
@@ -16,10 +18,21 @@ public class Role {
     private int id;
     private String name;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JUser> jUsers = new ArrayList<>();
+
     public static Role of(String name) {
         Role role = new Role();
         role.name = name;
         return role;
+    }
+
+    public List<JUser> getjUsers() {
+        return jUsers;
+    }
+
+    public void setjUsers(List<JUser> jUsers) {
+        this.jUsers = jUsers;
     }
 
     public int getId() {
