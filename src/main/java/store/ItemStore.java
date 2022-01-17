@@ -1,5 +1,6 @@
 package store;
 
+import models.Category;
 import models.Item;
 import models.User;
 import org.hibernate.Session;
@@ -11,6 +12,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -82,7 +84,14 @@ public class ItemStore implements Store, AutoCloseable {
 
     @Override
     public Item findById(int id) {
-        return this.tx(session -> session.get(Item.class, id));
+        return this.tx(session -> {
+                    Query query = session.createQuery(
+                            "select distinct i from Item i join fetch "
+                                    + "i.categories where i.id = :id");
+                    query.setParameter("id", id);
+                    return (Item) query.uniqueResult();
+                }
+        );
     }
 
     @Override
@@ -95,9 +104,10 @@ public class ItemStore implements Store, AutoCloseable {
     }
 
     @Override
-    public boolean update(int id, Item item) {
+    public boolean update(int id, Item item, Category category) {
        return this.tx(session -> {
            item.setId(id);
+           item.getCategories().set(id, category);
            session.update(item);
            return true;
        });
@@ -105,7 +115,7 @@ public class ItemStore implements Store, AutoCloseable {
 
     @Override
     public boolean updateItem(Item item) {
-        return update(item.getId(), item);
+        return update(item.getId(), item, (Category) item.getCategories());
     }
 
     @Override
@@ -122,6 +132,28 @@ public class ItemStore implements Store, AutoCloseable {
                     User user = (User) query.uniqueResult();
                     return user;
                 }
+        );
+    }
+
+    @Override
+    public List<Category> findAllCategory() {
+        List<Category> rsl = new ArrayList<>();
+        try (Session session = sf.openSession()) {
+            session.beginTransaction();
+
+            rsl = session.createQuery("from Category", Category.class).list();
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            sf.getCurrentSession().getTransaction().rollback();
+        }
+        return rsl;
+    }
+
+    @Override
+    public Category findCategoryById(int id) {
+        return this.tx(
+                session -> session.get(Category.class, id)
         );
     }
 }

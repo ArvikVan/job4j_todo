@@ -2,6 +2,7 @@ package servlet;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import models.Category;
 import models.Item;
 import models.User;
 import store.ItemStore;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author ArvikV
@@ -51,10 +53,11 @@ public class ItemServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         Item item = GSON.fromJson(req.getReader(), Item.class);
-        resp.setContentType("application/json; charset=utf-8");
         User user = (User) req.getSession().getAttribute("user");
         item.setUser(user);
+        item.addCategory(ItemStore.instOf().findCategoryById(1));
         ItemStore.instOf().add(item);
+        resp.setContentType("application/json; charset=utf-8");
         writeJson(resp, item);
     }
 

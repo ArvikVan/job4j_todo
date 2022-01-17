@@ -1,5 +1,6 @@
 package store;
 
+import models.Category;
 import models.Item;
 import models.User;
 
@@ -20,7 +21,9 @@ public interface Store {
 
     void done(int id);
 
-    boolean update(int id, Item item);
+    /*boolean update(int id, Item item);*/
+
+    boolean update(int id, Item item, Category category);
 
     boolean updateItem(Item item);
 
@@ -29,4 +32,8 @@ public interface Store {
     User findUserByName(String name);
 
     Serializable addUser(User user);
+
+    List<Category> findAllCategory();
+
+    Category findCategoryById(int id);
 }

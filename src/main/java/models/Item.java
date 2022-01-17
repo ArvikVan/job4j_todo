@@ -3,6 +3,8 @@ package models;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,6 +26,8 @@ public class Item {
     @JoinColumn(name = "user_id")
     private User user;
     private boolean done;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Category> categories = new ArrayList<>();
 
     public Item() {
     }
@@ -34,6 +38,18 @@ public class Item {
         this.created = created;
         this.done = done;
         this.user = user;
+    }
+
+    public void addCategory(Category category) {
+        this.categories.add(category);
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 
     public User getUser() {
